@@ -1,0 +1,26 @@
+name: DisableBuild
+version: ${project.version}
+main: me.nowaha.disablebuild.Disablebuild
+api-version: 1.13
+authors: [Nowaha]
+description: Disable building when you have build permissions.
+website: www.noahverkaik.com
+commands:
+  togglebuild:
+    description: Disable/enable the breaking & placing of blocks for yourself.
+  toggleplace:
+    description: Disable/enable the placing of blocks for yourself.
+  togglebreak:
+    description: Disable/enable the breaking of blocks for yourself.
+permissions:
+  disablebuild.togglebuild:
+    children:
+      - disablebuild.toggleplace
+      - disablebuild.togglebreak
+    default: op
+  disablebuild.toggleplace:
+    description: Allows you to disable/enable the placing of blocks for yourself.
+    default: op
+  disablebuild.togglebreak:
+    description: Allows you to disable/enable the breaking of blocks for yourself.
+    default: op

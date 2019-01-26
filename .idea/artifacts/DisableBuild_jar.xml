@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DisableBuild:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DisableBuild_jar</output-path>
+    <root id="archive" name="DisableBuild.jar">
+      <element id="module-output" name="DisableBuild" />
+    </root>
+  </artifact>
+</component>
