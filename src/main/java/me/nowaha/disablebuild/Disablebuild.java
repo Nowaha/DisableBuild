@@ -19,18 +19,43 @@ public final class Disablebuild extends JavaPlugin implements Listener {
     public void onEnable() {
         // Plugin startup logic
         getServer().getPluginManager().registerEvents(this, this);
+
+        playersCannotBuild = loadConfigValue("playersCannotBuild");
+        playersCannotPlace = loadConfigValue("playersCannotPlace");
+        playersCannotBreak = loadConfigValue("playersCannotBreak");
+
         getLogger().info("§aPlugin has been enabled.");
+    }
+
+    List<String> loadConfigValue(String path) {
+        return loadConfigValue(path, new ArrayList<String>());
+    }
+
+    List<String> loadConfigValue(String path, List<String> defaultValue) {
+        if (getConfig().get(path) == null) {
+            getConfig().set(path, defaultValue);
+            saveConfig();
+
+            return defaultValue;
+        } else {
+            return (List<String>) getConfig().get(path);
+        }
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        getConfig().set("playersCannotBuild", playersCannotBuild);
+        getConfig().set("playersCannotPlace", playersCannotPlace);
+        getConfig().set("playersCannotBreak", playersCannotBreak);
+        saveConfig();
+
         getLogger().info("§cPlugin has been disabled.");
     }
 
-    List<Player> playersCannotBuild = new ArrayList<>();
-    List<Player> playersCannotPlace = new ArrayList<>();
-    List<Player> playersCannotBreak= new ArrayList<>();
+    List<String> playersCannotBuild = new ArrayList<>();
+    List<String> playersCannotPlace = new ArrayList<>();
+    List<String> playersCannotBreak= new ArrayList<>();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -42,48 +67,62 @@ public final class Disablebuild extends JavaPlugin implements Listener {
 
         if (command.getName().equalsIgnoreCase("togglebuild")) {
             if (p.hasPermission("disablebuild.togglebuild")) {
-                if (playersCannotBuild.contains(p)) {
+                String UUID = p.getUniqueId().toString();
+
+                if (playersCannotBuild.contains(UUID)) {
                     p.sendMessage("§aYou have enabled building for yourself.");
-                    playersCannotBuild.remove(p);
+                    playersCannotBuild.remove(UUID);
+                    playersCannotPlace.remove(UUID);
+                    playersCannotBreak.remove(UUID);
                 } else {
                     p.sendMessage("§aYou have disabled building for yourself.");
-                    playersCannotBuild.add(p);
+                    playersCannotBuild.add(UUID);
                 }
+            } else {
+                p.sendMessage("§cYou are not allowed to do that.");
             }
-        } else if (command.getName().equalsIgnoreCase("toggleplace")) {
+        } else if (command.getName().equalsIgnoreCase("toggleplace") || p.hasPermission("disablebuild.togglebuild")) {
             if (p.hasPermission("disablebuild.toggleplace")) {
-                if (playersCannotPlace.contains(p)) {
+                String UUID = p.getUniqueId().toString();
+
+                if (playersCannotPlace.contains(UUID)) {
                     p.sendMessage("§aYou have enabled placing for yourself.");
-                    playersCannotPlace.remove(p);
+                    playersCannotPlace.remove(UUID);
                 } else {
                     p.sendMessage("§aYou have disabled placing for yourself.");
-                    playersCannotPlace.add(p);
+                    playersCannotPlace.add(UUID);
                 }
+            } else {
+                p.sendMessage("§cYou are not allowed to do that.");
             }
         } else if (command.getName().equalsIgnoreCase("togglebreak")) {
-            if (p.hasPermission("disablebuild.togglebreak")) {
-                if (playersCannotBreak.contains(p)) {
+            if (p.hasPermission("disablebuild.togglebreak") || p.hasPermission("disablebuild.togglebuild")) {
+                String UUID = p.getUniqueId().toString();
+
+                if (playersCannotBreak.contains(UUID)) {
                     p.sendMessage("§aYou have enabled breaking for yourself.");
-                    playersCannotBreak.remove(p);
+                    playersCannotBreak.remove(UUID);
                 } else {
                     p.sendMessage("§aYou have disabled breaking for yourself.");
-                    playersCannotBreak.add(p);
+                    playersCannotBreak.add(UUID);
                 }
+            } else {
+                p.sendMessage("§cYou are not allowed to do that.");
             }
         }
-        return super.onCommand(sender, command, label, args);
+        return true;
     }
 
     @EventHandler
     void onBlockBreak(BlockBreakEvent e) {
-        if (playersCannotBuild.contains(e.getPlayer()) || playersCannotBreak.contains(e.getPlayer())) {
+        if (playersCannotBuild.contains(e.getPlayer().getUniqueId().toString()) || playersCannotBreak.contains(e.getPlayer().getUniqueId().toString())) {
             e.setCancelled(true);
         }
     }
 
     @EventHandler
     void onBlockPlace(BlockPlaceEvent e) {
-        if (playersCannotBuild.contains(e.getPlayer()) || playersCannotPlace.contains(e.getPlayer())) {
+        if (playersCannotBuild.contains(e.getPlayer().getUniqueId().toString()) || playersCannotPlace.contains(e.getPlayer().getUniqueId().toString())) {
             e.setCancelled(true);
         }
     }

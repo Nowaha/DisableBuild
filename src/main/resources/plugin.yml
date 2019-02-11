@@ -1,5 +1,5 @@
 name: DisableBuild
-version: ${project.version}
+version: 1.5
 main: me.nowaha.disablebuild.Disablebuild
 api-version: 1.13
 authors: [Nowaha]
